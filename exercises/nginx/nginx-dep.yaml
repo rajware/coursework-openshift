@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-dep
+  labels:
+    sample: openshift-security
+    day: day1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      sample: openshift-security
+      day: day1
+      layer: nginx-dep
+  template:
+    metadata:
+      labels:
+        sample: openshift-security
+        day: day1
+        layer: nginx-dep
+    spec:
+      # serviceAccountName: nginx-sa
+      containers:
+        - name: c1
+          image: nginx:1.25.2-alpine
+          # image: registry.redhat.io/ubi8/nginx-120:latest
+          # args:
+          #   - "nginx"
+          #   - "-g"
+          #   - "daemon off;"
+          # securityContext:
+          #   runAsUser: 0
