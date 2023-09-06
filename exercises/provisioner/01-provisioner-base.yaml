@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kutti-provisioner
+  labels:
+    app.kubernetes.io/name: provisioner-localvolume
+    app.kubernetes.io/part-of: kutti
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kutti-provisioner
+  namespace: kutti-provisioner
+  labels:
+    app.kubernetes.io/name: provisioner-localvolume
+    app.kubernetes.io/part-of: kutti

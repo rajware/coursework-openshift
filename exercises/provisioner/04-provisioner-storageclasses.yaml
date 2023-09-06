@@ -1,0 +1,21 @@
+#  StorageClass for deleting PV after reclaim.
+#    This is the default storage class
+#    Remove the is-default-class annotation if required
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: kutti-delete
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+provisioner: kuttiproject/provisioner-localvolume
+reclaimPolicy: Delete
+volumeBindingMode: WaitForFirstConsumer
+---
+#  StorageClass for retaining PV after reclaim
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: kutti-retain
+provisioner: kuttiproject/provisioner-localvolume
+reclaimPolicy: Retain
+volumeBindingMode: WaitForFirstConsumer

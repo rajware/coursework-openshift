@@ -1,0 +1,65 @@
+# This file deploys an external volume provisioner, with the identifier
+#    kutti/provisioner-localvolume
+#
+# The following API objects will be created:
+#    - clusterroles/kutti-provisioner
+#    - serviceaccounts/kutti-provisioner in the kutti-provisioner namespace
+#    - clusterrolebindings/kutti-provisioner
+#    - deployments/kutti-provisioner in the kutti-provisioner namespace
+#    - storageclasses/kutti-delete in the default namespace
+#    - storageclasses/kutti-retain in the default namespace
+#
+# The ClusterRole is needed for the permissions required by
+#    sigs.k8s.io/sig-storage-lib-external-provisioner/controller
+#
+# Two StorageClasses are deployed, with volumeReclaimPolicy of Delete and Retain
+# storageclasses/kutti-delete is the default
+# Both have volumeBindingMode set to WaitForFirstConsumer, as recommended at
+# https://kubernetes.io/docs/concepts/storage/volumes/#local
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kutti-provisioner
+  namespace: kutti-provisioner
+  labels:
+    app.kubernetes.io/name: provisioner-localvolume
+    app.kubernetes.io/part-of: kutti
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: provisioner-localvolume
+      app.kubernetes.io/part-of: kutti
+      app.kubernetes.io/component: external-provisioner
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: provisioner-localvolume
+        app.kubernetes.io/part-of: kutti
+        app.kubernetes.io/component: external-provisioner
+    spec:
+      serviceAccount: kutti-provisioner
+      containers:
+        - name: provisioner
+          image: kuttiproject/provisioner-localvolume:0.2.0
+          volumeMounts:
+            - name: kuttivolsroot
+              mountPath: /kutti/vols
+              # mountPath: /var/lib/kubelet/plugins/kutti-provisioner
+          env:
+            - name: KUTTI_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: KUTTI_ROOT_PATH
+              value: /kutti/vols
+              # value: /var/lib/kubelet/plugins/kutti-provisioner
+          securityContext:
+            allowPrivilegeEscalation: true
+            runAsUser: 0
+      volumes:
+        - name: kuttivolsroot
+          hostPath:
+            path: /kutti/vols
+            # path: /var/lib/kubelet/plugins/kutti-provisioner
+            type: DirectoryOrCreate
