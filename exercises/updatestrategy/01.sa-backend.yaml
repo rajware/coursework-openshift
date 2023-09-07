@@ -1,0 +1,72 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: sadb-pvc
+  labels:
+    day: day3
+    sample: updatestrategy
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sadb-dep
+  labels:
+    day: day3
+    sample: updatestrategy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      day: day3
+      sample: updatestrategy
+      layer: backend
+  template:
+    metadata:
+      labels:
+        day: day3
+        sample: updatestrategy
+        layer: backend
+    spec:
+      volumes:
+        - name: dbvol
+          persistentVolumeClaim:
+            claimName: sadb-pvc
+      containers:
+        - name: database
+          image: postgres:15.4-alpine
+          volumeMounts:
+            - name: dbvol
+              mountPath: /var/lib/postgresql/data
+          env:
+            - name: POSTGRES_USER
+              value: admin
+            - name: POSTGRES_PASSWORD
+              value: something
+            - name: POSTGRES_DB
+              value: tasksdb
+          securityContext:
+            runAsNonroot: false
+            runAsUser: 0
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sadb-svc
+  labels:
+    day: day3
+    sample: updatestrategy
+spec:
+  type: ClusterIP
+  selector:
+    day: day3
+    sample: updatestrategy
+    layer: backend
+  ports:
+    - name: postgres
+      port: 5432

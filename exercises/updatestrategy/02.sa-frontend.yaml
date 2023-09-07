@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sa-dep
+  labels:
+    day: day3
+    sample: updatestrategy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      day: day3
+      sample: updatestrategy
+      layer: frontend
+  template:
+    metadata:
+      labels:
+        day: day3
+        sample: updatestrategy
+        layer: frontend
+    spec:
+      containers:
+        - name: webserver
+          args:
+            - /app/tasksserver
+            - -s
+            - sadb-svc
+            - -p
+            - something
+          image: quay.io/rajch/sample-updatestrategy:2.0
+          env:
+            - name: TASKS_STORAGE
+              value: postgres
+            - name: TASKS_DBSERVER
+              value: sadb-svc
+            - name: TASKS_USERNAME
+              value: admin
+            - name: TASKS_PASSWORD
+              value: something
+            - name: TASKS_DBNAME
+              value: tasksdb            
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sa-svc
+  labels:
+    day: day3
+    sample: updatestrategy
+spec:
+  type: ClusterIP
+  selector:
+    day: day3
+    sample: updatestrategy
+    layer: frontend
+  ports:
+    - name: www
+      port: 8080
