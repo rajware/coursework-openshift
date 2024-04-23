@@ -28,6 +28,6 @@ seLinuxContext:
 supplementalGroups:
   type: RunAsAny
 users:
-- system:serviceaccount:kutti-provisioner:kutti-provisioner-sa
+- system:serviceaccount:kutti-provisioner:kutti-provisioner
 volumes:
 - '*'
