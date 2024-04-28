@@ -1,0 +1,16 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: dep1-np
+  labels:
+    day: day5
+    sample: multinetworks
+spec:
+  policyTypes:
+    - Ingress
+    - Egress
+  podSelector:
+    matchLabels:
+      day: day5
+      sample: multinetworks
+      layer: dep1

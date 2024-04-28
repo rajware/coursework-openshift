@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dep1
+  labels:
+    day: day5
+    sample: multinetworks
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      day: day5
+      sample: multinetworks
+      layer: dep1
+  template:
+    metadata:
+      labels:
+        day: day5
+        sample: multinetworks
+        layer: dep1
+      annotations:
+        k8s.v1.cni.cncf.io/networks: bridge-net
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: worker1
+      serviceAccountName: nginx-sa
+      containers:
+        - name: www
+          image: nginx:alpine
+          securityContext:
+            runAsUser: 0
+        - name: ics
+          image: quay.io/rajch/ics:0.2.1

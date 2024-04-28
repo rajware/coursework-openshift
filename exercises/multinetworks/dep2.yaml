@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dep2
+  labels:
+    day: day5
+    sample: multinetworks
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      day: day5
+      sample: multinetworks
+      layer: dep2
+  template:
+    metadata:
+      labels:
+        day: day5
+        sample: multinetworks
+        layer: dep2
+      annotations:
+        k8s.v1.cni.cncf.io/networks: bridge-net
+    spec:
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  day: day5
+                  sample: multinetworks
+                  layer: dep1
+              topologyKey: kubernetes.io/hostname
+      serviceAccountName: nginx-sa
+      containers:
+        - name: www
+          image: nginx:alpine
+          securityContext:
+            runAsUser: 0
