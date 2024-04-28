@@ -1,0 +1,35 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: secureserver
+spec:
+  host: secureserver-project1.apps.ocp415.rwsl.in
+  port:
+    targetPort: 80
+    # targetPort: 443
+  to:
+    kind: Service
+    name: secureserver
+    weight: 100
+  wildcardPolicy: None
+  # tls:
+  #   termination: edge
+  #   termination: reencrypt
+  #   termination: passthrough
+  #   key: |
+  #     -----BEGIN PRIVATE KEY-----
+  #     ...Custom Ingress Private Key here...
+  #     -----END PRIVATE KEY-----
+  #   certificate: |
+  #     -----BEGIN CERTIFICATE-----
+  #     ...Custom Ingress certificate with wildcard here...
+  #     -----END CERTIFICATE-----
+  #   caCertificate: |
+  #     -----BEGIN CERTIFICATE-----
+  #     ...CA certificate for the Custom Ingress certificate here...
+  #     -----END CERTIFICATE-----
+  #   destinationCACertificate: |
+  #     -----BEGIN CERTIFICATE-----
+  #     ...CA certificate for the App Server certificate here...
+  #     -----END CERTIFICATE-----
+  #   insecureEdgeTerminationPolicy: Redirect

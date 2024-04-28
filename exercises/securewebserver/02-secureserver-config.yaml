@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: secureserver-config
+data:
+  caddyFile: |
+    :80 {
+      # Set this path to your site's directory.
+      root * /usr/share/caddy
+
+      # Enable the static file server.
+      # file_server
+
+      # Reverse-proxy another site
+      reverse_proxy http://localhost:8080
+    }
+
+    :443 {
+      # Set this path to your site's directory.
+      root * /usr/share/caddy
+
+      # Enable the static file server.
+      # file_server
+
+      # Reverse-proxy another site
+      reverse_proxy http://localhost:8080
+
+      # Enable tls with certificate files
+      tls /etc/caddy/cert.pem /etc/caddy/key.pem
+    }
+  indexHtml: |
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Secure Server</title>
+    </head>
+    <body>
+        <h1>Secure Server</h1>
+        <p>This is a placeholder page.</p>
+    </body>
+    </html>

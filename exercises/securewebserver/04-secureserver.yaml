@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: secureserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      layer: secureserver
+  template:
+    metadata:
+      labels:
+        layer: secureserver
+    spec:
+      serviceAccountName: nginx-sa
+      volumes:
+        - name: caddydata
+          persistentVolumeClaim:
+            claimName: secureserver-pvc
+        - name: caddyconfig
+          configMap:
+            name: secureserver-config
+        - name: caddycert
+          secret:
+            secretName: secureserver-secret
+      containers:
+        - name: server
+          image: docker.io/library/caddy:2.7.6-alpine
+          volumeMounts:
+            - name: caddydata
+              mountPath: /data
+            - name: caddyconfig
+              subPath: caddyFile
+              mountPath: /etc/caddy/Caddyfile
+            - name: caddyconfig
+              subPath: indexHtml
+              mountPath: /usr/share/caddy/index.html
+            - name: caddycert
+              subPath: cert
+              mountPath: /etc/caddy/cert.pem
+            - name: caddycert
+              subPath: key
+              mountPath: /etc/caddy/key.pem            
+          securityContext:
+            runasUser: 0
+        - name: adminer
+          image: adminer:4-standalone
+          env:
+            - name: ADMINER_DEFAULT_SERVER
+              value: db-svc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: secureserver
+spec:
+  type: ClusterIP
+  selector:
+    layer: secureserver
+  ports:
+    - name: http
+      port: 80
+    - name: https
+      port: 443
